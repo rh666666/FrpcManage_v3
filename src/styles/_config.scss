@@ -1,0 +1,537 @@
+@use "variables" as *;
+
+// —— 配置管理页 ——
+.config-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.config-split {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.config-toast {
+  position: fixed;
+  bottom: var(--space-5);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+// —— 配置列表 ——
+.config-list-panel {
+  display: flex;
+  flex-direction: column;
+  width: 220px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  min-height: 0;
+}
+
+.config-list-toolbar {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.config-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+  padding: var(--space-1) 0;
+  overflow: auto;
+
+  &.is-empty {
+    color: var(--text-dim);
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    text-align: center;
+    padding: var(--space-5) var(--space-3);
+  }
+}
+
+.config-item-wrap {
+  position: relative;
+  border-left: 2px solid transparent;
+
+  &:hover {
+    background: var(--bg-hover);
+
+    .config-item-actions {
+      opacity: 1;
+    }
+  }
+
+  &.is-active {
+    background: var(--bg-hover);
+    border-left-color: var(--accent);
+
+    .config-item-actions {
+      opacity: 1;
+    }
+  }
+}
+
+.config-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  padding: var(--space-1) var(--space-2);
+  padding-right: var(--space-5);
+  border: none;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  min-width: 0;
+
+  &-name {
+    font-weight: 500;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &-meta {
+    font-size: 11px;
+    line-height: 1.35;
+    color: var(--text-dim);
+  }
+}
+
+.config-item-actions {
+  position: absolute;
+  right: var(--space-1);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: var(--space-1);
+    border-radius: var(--radius-sm);
+
+    &:hover {
+      background: var(--bg-elevated);
+      color: var(--text);
+    }
+  }
+}
+
+// —— 配置编辑器 ——
+.config-editor {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.editor-title {
+  font-weight: 600;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.mode-switch {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--bg-inset);
+  border-radius: var(--radius-sm);
+}
+
+.mode-btn {
+  padding: var(--space-1) var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 12px;
+  cursor: pointer;
+
+  &.is-active {
+    background: var(--bg-hover);
+    color: var(--text);
+  }
+}
+
+.editor-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+
+  &-source {
+    display: flex;
+  }
+}
+
+.editor-form {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.editor-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 100%;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.editor-empty-inline {
+  color: var(--text-dim);
+  padding: var(--space-1) 0 2px;
+  font-size: 12px;
+}
+
+.editor-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.editor-error {
+  padding: var(--space-2) var(--space-3);
+  background: rgba(224, 108, 117, 0.1);
+  border-bottom: 1px solid var(--err);
+  color: var(--err);
+  font-size: 12px;
+}
+
+.editor-source {
+  flex: 1;
+  width: 100%;
+  padding: var(--space-3);
+  border: none;
+  resize: none;
+  outline: none;
+  background: var(--bg-inset);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.6;
+  user-select: text;
+}
+
+.save-status {
+  font-size: 11px;
+  color: var(--ok);
+}
+
+// —— 表单分组 ——
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  &-title {
+    font-weight: 600;
+    font-size: 13px;
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+// —— FieldSection ——
+.field-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+
+  &-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-1);
+    border: none;
+    background: transparent;
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+
+    &:hover {
+      background: var(--bg-hover);
+    }
+  }
+
+  &-caret {
+    color: var(--text-dim);
+    width: 12px;
+  }
+
+  &-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px 14px;
+    padding: var(--space-2) var(--space-1);
+
+    .item-inspector & {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+// —— FormField ——
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.field-label {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.field-required {
+  color: var(--err);
+  margin-left: 2px;
+}
+
+.field-input {
+  width: 100%;
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-inset);
+  color: var(--text);
+  font-size: 12px;
+  font-family: var(--mono);
+  outline: none;
+
+  &:focus {
+    border-color: var(--accent);
+  }
+}
+
+.field-select {
+  font-family: inherit;
+}
+
+.field-textarea {
+  resize: vertical;
+  min-height: 54px;
+  line-height: 1.5;
+}
+
+.field-hint {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+// —— 代理 / 访问者列表 ——
+.item-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.proxy-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+
+  &:hover .proxy-row-del,
+  &:has(.proxy-row-main.is-active) .proxy-row-del {
+    opacity: 1;
+  }
+
+  &-main {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-2);
+    border: none;
+    border-left: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    text-align: left;
+
+    &:hover {
+      background: var(--bg-hover);
+    }
+
+    &.is-active {
+      background: var(--bg-hover);
+      border-left-color: var(--accent);
+    }
+  }
+
+  &-status {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    &.is-on {
+      background: var(--ok);
+    }
+
+    &.is-off {
+      background: var(--text-dim);
+    }
+  }
+
+  &-name {
+    font-weight: 500;
+    font-family: var(--mono);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  &-type {
+    padding: 1px 6px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-hover);
+    color: var(--text-dim);
+    font-size: 11px;
+    font-family: var(--mono);
+    flex-shrink: 0;
+  }
+
+  &-summary {
+    flex: 1;
+    min-width: 0;
+    color: var(--text-dim);
+    font-size: 11px;
+    font-family: var(--mono);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &-del {
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    color: var(--err);
+    font-size: 12px;
+    cursor: pointer;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    opacity: 0;
+
+    &:hover {
+      background: rgba(224, 108, 117, 0.12);
+    }
+  }
+}
+
+.proxy-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin: var(--space-2) 0 var(--space-1);
+}
+
+// —— 类型选择器 ——
+.type-picker {
+  margin-top: var(--space-2);
+
+  &-title {
+    font-weight: 600;
+    font-size: 12px;
+    margin-bottom: var(--space-2);
+    color: var(--text-dim);
+  }
+
+  &-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+}
+
+.type-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+
+  &-label {
+    font-weight: 500;
+    font-size: 12px;
+  }
+
+  &-value {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text-dim);
+  }
+}
+
+// —— 选中项字段面板 ——
+.item-inspector {
+  margin-top: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border);
+}

@@ -1,0 +1,94 @@
+// Design tokens —— 全局设计变量（结构 + 默认深色）
+:root {
+  --radius: 6px;
+  --radius-sm: 4px;
+  --mono: "Cascadia Code", "JetBrains Mono", Consolas, "Courier New", monospace;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+}
+
+:root,
+[data-theme="dark"] {
+  --bg: #1c1d21;
+  --bg-elevated: #25262c;
+  --bg-hover: #2d2e36;
+  --bg-inset: #18191e;
+  --border: rgba(255, 255, 255, 0.12);
+  --text: #eeeef0;
+  --text-dim: #a4a7b0;
+  --accent: #6971e3;
+  --accent-dim: #585fd0;
+  --on-accent: #fff;
+  --ok: #45d492;
+  --warn: #e8bc6a;
+  --err: #e57a82;
+  --log-red: var(--err);
+  --log-green: var(--ok);
+  --log-yellow: var(--warn);
+  --log-bright: var(--text);
+  --brand-tag-bg: rgba(125, 185, 255, 0.16);
+  --brand-tag-text: #8ec5ff;
+}
+
+[data-theme="light"] {
+  --bg: #f4f4f6;
+  --bg-elevated: #ffffff;
+  --bg-hover: #ececf0;
+  --bg-inset: #fafafa;
+  --border: rgba(0, 0, 0, 0.1);
+  --text: #1a1b1f;
+  --text-dim: #6b7280;
+  --accent: #5b5fd6;
+  --accent-dim: #4a4ec4;
+  --on-accent: #fff;
+  --ok: #1f9d62;
+  --warn: #b8860b;
+  --err: #c93c4a;
+  --log-red: var(--err);
+  --log-green: var(--ok);
+  --log-yellow: var(--warn);
+  --log-bright: var(--text);
+  --brand-tag-bg: rgba(59, 130, 246, 0.12);
+  --brand-tag-text: #3b82f6;
+}
+
+[data-theme="aishenleishen"] {
+  --bg: #1e1630;
+  --bg-elevated: #2a2042;
+  --bg-hover: #352a52;
+  --bg-inset: #18122a;
+  --border: rgba(232, 197, 71, 0.14);
+  --text: #f2ecff;
+  --text-dim: #b5a8d4;
+  --accent: #e8c547;
+  --accent-dim: #d4a82e;
+  --on-accent: #1a1520;
+  --ok: #45d492;
+  --warn: #e8c547;
+  --err: #e57a82;
+  --log-red: var(--err);
+  --log-green: var(--ok);
+  --log-yellow: var(--warn);
+  --log-bright: var(--text);
+  --brand-tag-bg: rgba(125, 185, 255, 0.16);
+  --brand-tag-text: #8ec5ff;
+}
+
+// SCSS 侧可复用工具变量（编译期，默认深色）
+$bg: #1c1d21;
+$bg-elevated: #25262c;
+$bg-hover: #2d2e36;
+$bg-inset: #18191e;
+$border: rgba(255, 255, 255, 0.12);
+$text: #eeeef0;
+$text-dim: #a4a7b0;
+$accent: #6971e3;
+$accent-dim: #585fd0;
+$ok: #45d492;
+$warn: #e8bc6a;
+$err: #e57a82;
+$radius: 6px;
+$radius-sm: 4px;

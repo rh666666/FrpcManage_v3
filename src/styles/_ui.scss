@@ -1,0 +1,141 @@
+@use "variables" as *;
+
+// —— Button ——
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  height: 28px;
+  padding: 0 var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text);
+  background: var(--bg-elevated);
+
+  &:hover:not(:disabled) {
+    background: var(--bg-hover);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent, #fff);
+
+  &:hover:not(:disabled) {
+    background: var(--accent-dim);
+  }
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--err);
+  border-color: rgba(224, 108, 117, 0.4);
+
+  &:hover:not(:disabled) {
+    background: rgba(224, 108, 117, 0.12);
+    border-color: var(--err);
+  }
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-dim);
+
+  &:hover:not(:disabled) {
+    background: var(--bg-hover);
+    color: var(--text);
+  }
+}
+
+// —— StatusDot ——
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+
+  &-ok {
+    background: var(--ok);
+  }
+
+  &-warn {
+    background: var(--warn);
+  }
+
+  &-err {
+    background: var(--err);
+  }
+
+  &-muted {
+    background: var(--text-dim);
+  }
+}
+
+// —— Switch ——
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  padding: 2px 0;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+
+    &:checked + .switch-track {
+      background: var(--accent);
+
+      .switch-thumb {
+        transform: translateX(16px);
+      }
+    }
+
+    &:checked ~ .switch-text {
+      color: var(--text);
+    }
+  }
+
+  &-track {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    border-radius: 20px;
+    background: var(--text-dim);
+    transition: background 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  &-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.15s ease;
+  }
+
+  &-text {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  &.is-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
