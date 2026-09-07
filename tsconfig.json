@@ -15,9 +15,8 @@
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
 
-    "baseUrl": ".",
     "paths": {
-      "@components/*": ["src/components/*"]
+      "@components/*": ["./src/components/*"]
     },
 
     /* Linting */
