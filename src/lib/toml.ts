@@ -9,6 +9,12 @@ export interface FrpConfig {
   visitors: AnyRecord[];
 }
 
+/** map[string]string 条目，用于 metadatas、HeaderOperations.set 等。 */
+export interface KvEntry {
+  name: string;
+  value: string;
+}
+
 function isRecord(v: unknown): v is AnyRecord {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
@@ -80,17 +86,23 @@ function pruneEmptyAncestors(rec: AnyRecord, path: string[]): void {
   }
 }
 
-/** 按点分路径写入嵌套表中的字符串值；清空时删除叶子键并剪除空祖先表。 */
-function setNestedStr(rec: AnyRecord, key: string, value: string): void {
+function splitKey(key: string): { parentPath: string[]; leafKey: string } {
   const parts = key.split(".");
-  const leafKey = parts[parts.length - 1];
-  const parentPath = parts.slice(0, -1);
+  return { parentPath: parts.slice(0, -1), leafKey: parts[parts.length - 1] };
+}
 
+/** 定位嵌套表的父节点；create 为 true 时自动创建中间表。 */
+function resolveParent(
+  rec: AnyRecord,
+  key: string,
+  create: boolean,
+): { parent: AnyRecord; leafKey: string; parentPath: string[] } | null {
+  const { parentPath, leafKey } = splitKey(key);
   let current: AnyRecord = rec;
   for (const part of parentPath) {
     const next = current[part];
     if (!isRecord(next)) {
-      if (value.trim() === "") return;
+      if (!create) return null;
       const created: AnyRecord = {};
       current[part] = created;
       current = created;
@@ -98,12 +110,32 @@ function setNestedStr(rec: AnyRecord, key: string, value: string): void {
     }
     current = next;
   }
+  return { parent: current, leafKey, parentPath };
+}
 
+/** 删除点分路径上的叶子键并剪除空祖先表。 */
+function deleteNestedLeaf(rec: AnyRecord, key: string): void {
+  const resolved = resolveParent(rec, key, false);
+  if (!resolved) return;
+  const { parent, leafKey, parentPath } = resolved;
+  delete parent[leafKey];
+  pruneEmptyAncestors(rec, parentPath);
+}
+
+/** 写入点分路径上的叶子值。 */
+function setNestedLeaf(rec: AnyRecord, key: string, value: unknown): void {
+  const resolved = resolveParent(rec, key, true);
+  if (!resolved) return;
+  const { parent, leafKey } = resolved;
+  parent[leafKey] = value;
+}
+
+/** 按点分路径写入嵌套表中的字符串值；清空时删除叶子键并剪除空祖先表。 */
+function setNestedStr(rec: AnyRecord, key: string, value: string): void {
   if (value.trim() === "") {
-    delete current[leafKey];
-    pruneEmptyAncestors(rec, parentPath);
+    deleteNestedLeaf(rec, key);
   } else {
-    current[leafKey] = value.trim();
+    setNestedLeaf(rec, key, value.trim());
   }
 }
 
@@ -113,7 +145,7 @@ export function getStr(rec: AnyRecord, key: string): string {
 }
 
 export function getNum(rec: AnyRecord, key: string): number | null {
-  const v = rec[key];
+  const v = key.includes(".") ? getNestedValue(rec, key) : rec[key];
   if (typeof v === "number") return v;
   if (typeof v === "string" && v.trim() !== "") {
     const n = Number(v);
@@ -123,7 +155,7 @@ export function getNum(rec: AnyRecord, key: string): number | null {
 }
 
 export function getBool(rec: AnyRecord, key: string): boolean | null {
-  const v = rec[key];
+  const v = key.includes(".") ? getNestedValue(rec, key) : rec[key];
   if (typeof v === "boolean") return v;
   return null;
 }
@@ -138,13 +170,29 @@ export function setStr(rec: AnyRecord, key: string, value: string): void {
 }
 
 export function setNum(rec: AnyRecord, key: string, value: unknown): void {
-  const n = Number(value);
-  if (Number.isFinite(n)) rec[key] = n;
-  else delete rec[key];
+  const s = String(value).trim();
+  if (s === "") {
+    if (key.includes(".")) deleteNestedLeaf(rec, key);
+    else delete rec[key];
+    return;
+  }
+  const n = Number(s);
+  if (!Number.isFinite(n)) {
+    if (key.includes(".")) deleteNestedLeaf(rec, key);
+    else delete rec[key];
+    return;
+  }
+  if (key.includes(".")) setNestedLeaf(rec, key, n);
+  else rec[key] = n;
 }
 
 export function setBool(rec: AnyRecord, key: string, value: boolean | null): void {
-  if (value == null) delete rec[key];
+  if (value == null) {
+    if (key.includes(".")) deleteNestedLeaf(rec, key);
+    else delete rec[key];
+    return;
+  }
+  if (key.includes(".")) setNestedLeaf(rec, key, value);
   else rec[key] = value;
 }
 
@@ -153,46 +201,47 @@ export function setStringArray(rec: AnyRecord, key: string, value: string): void
     .split(/[\n,]/)
     .map((s) => s.trim())
     .filter(Boolean);
-  if (items.length === 0) delete rec[key];
-  else rec[key] = items;
+  if (items.length === 0) {
+    if (key.includes(".")) deleteNestedLeaf(rec, key);
+    else delete rec[key];
+  } else if (key.includes(".")) {
+    setNestedLeaf(rec, key, items);
+  } else {
+    rec[key] = items;
+  }
 }
 
 export function readStringArray(rec: AnyRecord, key: string): string {
-  const v = rec[key];
+  const v = key.includes(".") ? getNestedValue(rec, key) : rec[key];
   if (Array.isArray(v)) return v.map(String).join("\n");
   return "";
 }
 
-export function setKv(rec: AnyRecord, key: string, value: string): void {
-  const lines = value
-    .split("\n")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  if (lines.length === 0) {
-    delete rec[key];
-    return;
-  }
-  const out: AnyRecord = {};
-  for (const line of lines) {
-    const idx = line.indexOf("=");
-    if (idx > 0) {
-      const k = line.slice(0, idx).trim();
-      const v = line.slice(idx + 1).trim().replace(/^"|"$/g, "");
-      if (k) out[k] = v;
-    }
-  }
-  if (Object.keys(out).length === 0) delete rec[key];
-  else rec[key] = out;
+/** 读取 map[string]string 条目。 */
+export function readKvEntries(rec: AnyRecord, key: string): KvEntry[] {
+  const v = key.includes(".") ? getNestedValue(rec, key) : rec[key];
+  if (!isRecord(v)) return [];
+  return Object.entries(v).map(([name, val]) => ({
+    name,
+    value: val == null ? "" : String(val),
+  }));
 }
 
-export function readKv(rec: AnyRecord, key: string): string {
-  const v = rec[key];
-  if (isRecord(v)) {
-    return Object.entries(v)
-      .map(([k, val]) => `${k} = ${typeof val === "string" ? `"${val}"` : String(val)}`)
-      .join("\n");
+/** 写入 map[string]string；空 map 时删除该键并剪除空祖先表。 */
+export function setKvEntries(rec: AnyRecord, key: string, entries: KvEntry[]): void {
+  const out: AnyRecord = {};
+  for (const { name, value } of entries) {
+    const k = name.trim();
+    if (!k) continue;
+    out[k] = value.trim();
   }
-  return "";
+  if (Object.keys(out).length === 0) {
+    if (key.includes(".")) deleteNestedLeaf(rec, key);
+    else delete rec[key];
+    return;
+  }
+  if (key.includes(".")) setNestedLeaf(rec, key, out);
+  else rec[key] = out;
 }
 
 export function parseError(msg: string): Error {

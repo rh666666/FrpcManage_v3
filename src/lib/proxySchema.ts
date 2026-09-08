@@ -46,34 +46,96 @@ export const VISITOR_TYPES: { value: string; label: string; desc: string }[] = [
 
 const TRANSPORT_FIELDS: FieldDef[] = [
   {
-    key: "transport",
-    label: "传输设置",
-    hint: "一行一个，如：useEncryption = true、useCompression = true、bandwidthLimit = 1MB",
-    type: "kv",
+    key: "transport.useEncryption",
+    label: "启用加密",
+    hint: "启用后该代理与服务端之间的通信内容会被加密传输。",
+    type: "boolean",
     group: "advanced",
-    placeholder: "useEncryption = true",
+  },
+  {
+    key: "transport.useCompression",
+    label: "启用压缩",
+    hint: "启用后该代理与服务端之间的通信内容会被压缩传输。",
+    type: "boolean",
+    group: "advanced",
+  },
+  {
+    key: "transport.bandwidthLimit",
+    label: "带宽限制",
+    hint: "单位为 MB 或 KB，0 表示不限制。",
+    type: "text",
+    group: "advanced",
+    placeholder: "如 1MB",
+  },
+  {
+    key: "transport.bandwidthLimitMode",
+    label: "限流类型",
+    type: "select",
+    group: "advanced",
+    options: ["client", "server"],
+  },
+  {
+    key: "transport.proxyProtocolVersion",
+    label: "Proxy Protocol 版本",
+    type: "select",
+    group: "advanced",
+    options: ["v1", "v2"],
   },
 ];
 
 const HEALTHCHECK_FIELDS: FieldDef[] = [
   {
-    key: "healthCheck",
-    label: "健康检查",
-    hint: "定期检查本地服务。如：type = \"tcp\"、intervalSeconds = 10",
-    type: "kv",
+    key: "healthCheck.type",
+    label: "健康检查类型",
+    hint: "tcp 为连接成功即健康；http 要求接口返回 2xx。",
+    type: "select",
     group: "advanced",
-    placeholder: 'type = "tcp"',
+    options: ["tcp", "http"],
+  },
+  {
+    key: "healthCheck.timeoutSeconds",
+    label: "检查超时（秒）",
+    type: "number",
+    group: "advanced",
+  },
+  {
+    key: "healthCheck.maxFailed",
+    label: "连续失败次数",
+    hint: "连续检查失败多少次后认为服务不健康。",
+    type: "number",
+    group: "advanced",
+  },
+  {
+    key: "healthCheck.intervalSeconds",
+    label: "检查间隔（秒）",
+    type: "number",
+    group: "advanced",
+  },
+  {
+    key: "healthCheck.path",
+    label: "健康检查路径",
+    hint: "仅当健康检查类型为 http 时需要填写。",
+    type: "text",
+    group: "advanced",
+    placeholder: "如 /health",
   },
 ];
 
 const LOADBALANCER_FIELDS: FieldDef[] = [
   {
-    key: "loadBalancer",
+    key: "loadBalancer.group",
     label: "负载均衡分组",
-    hint: "多个同分组代理轮流承接请求。如：group = \"web\"、groupKey = \"key\"",
-    type: "kv",
+    hint: "同分组代理以轮询方式承接请求。",
+    type: "text",
     group: "advanced",
-    placeholder: 'group = "web"',
+    placeholder: "如 web",
+  },
+  {
+    key: "loadBalancer.groupKey",
+    label: "分组密钥",
+    hint: "groupKey 相同的代理才会被加入同一分组。",
+    type: "text",
+    group: "advanced",
   },
 ];
 
@@ -145,16 +207,16 @@ const HTTP_FIELDS: FieldDef[] = [
   { key: "httpPassword", label: "访问密码", type: "text", group: "advanced" },
   { key: "hostHeaderRewrite", label: "改写请求域名", type: "text", group: "advanced" },
   {
-    key: "requestHeaders",
+    key: "requestHeaders.set",
     label: "要写入请求头的内容",
-    hint: "每行一个：名 = 值。",
+    hint: "转发时在请求 Header 中追加的键值。",
     type: "kv",
     group: "advanced",
   },
   {
-    key: "responseHeaders",
+    key: "responseHeaders.set",
     label: "要写入响应头的内容",
-    hint: "每行一个：名 = 值。",
+    hint: "转发时在响应 Header 中追加的键值。",
     type: "kv",
     group: "advanced",
   },
@@ -187,17 +249,17 @@ const PROXY_SCHEMAS: Record<string, ProxySchema> = {
   udp: {
     type: "udp",
     common: COMMON_PROXY_FIELDS,
-    advanced: [...TRANSPORT_FIELDS, ...HEALTHCHECK_FIELDS],
+    advanced: [...TRANSPORT_FIELDS, ...HEALTHCHECK_FIELDS, ...LOADBALANCER_FIELDS],
   },
   http: {
     type: "http",
     common: [...COMMON_PROXY_FIELDS.filter((f) => f.key !== "remotePort"), ...DOMAIN_FIELDS],
-    advanced: [...TRANSPORT_FIELDS, ...HEALTHCHECK_FIELDS, ...HTTP_FIELDS],
+    advanced: [...TRANSPORT_FIELDS, ...HEALTHCHECK_FIELDS, ...LOADBALANCER_FIELDS, ...HTTP_FIELDS],
   },
   https: {
     type: "https",
     common: [...COMMON_PROXY_FIELDS.filter((f) => f.key !== "remotePort"), ...DOMAIN_FIELDS],
-    advanced: [...TRANSPORT_FIELDS, ...HEALTHCHECK_FIELDS],
+    advanced: [...TRANSPORT_FIELDS, ...HEALTHCHECK_FIELDS, ...LOADBALANCER_FIELDS],
   },
   tcpmux: {
     type: "tcpmux",
@@ -205,6 +267,7 @@ const PROXY_SCHEMAS: Record<string, ProxySchema> = {
     advanced: [
       ...TRANSPORT_FIELDS,
       ...HEALTHCHECK_FIELDS,
+      ...LOADBALANCER_FIELDS,
       { key: "httpUser", label: "访问用户名", type: "text", group: "advanced" },
       { key: "httpPassword", label: "访问密码", type: "text", group: "advanced" },
       { key: "multiplexer", label: "复用器类型", type: "select", group: "advanced", options: ["httpconnect"] },
@@ -213,17 +276,17 @@ const PROXY_SCHEMAS: Record<string, ProxySchema> = {
   stcp: {
     type: "stcp",
     common: [...COMMON_PROXY_FIELDS.filter((f) => f.key !== "remotePort"), ...P2P_FIELDS.slice(0, 1)],
-    advanced: [...TRANSPORT_FIELDS, ...HEALTHCHECK_FIELDS, ...P2P_FIELDS.slice(1)],
+    advanced: [...TRANSPORT_FIELDS, ...HEALTHCHECK_FIELDS, ...LOADBALANCER_FIELDS, ...P2P_FIELDS.slice(1)],
   },
   sudp: {
     type: "sudp",
     common: [...COMMON_PROXY_FIELDS.filter((f) => f.key !== "remotePort"), ...P2P_FIELDS.slice(0, 1)],
-    advanced: [...TRANSPORT_FIELDS, ...P2P_FIELDS.slice(1)],
+    advanced: [...TRANSPORT_FIELDS, ...HEALTHCHECK_FIELDS, ...LOADBALANCER_FIELDS, ...P2P_FIELDS.slice(1)],
   },
   xtcp: {
     type: "xtcp",
     common: [...COMMON_PROXY_FIELDS.filter((f) => f.key !== "remotePort"), ...P2P_FIELDS.slice(0, 1)],
-    advanced: [...TRANSPORT_FIELDS, ...P2P_FIELDS.slice(1)],
+    advanced: [...TRANSPORT_FIELDS, ...HEALTHCHECK_FIELDS, ...LOADBALANCER_FIELDS, ...P2P_FIELDS.slice(1)],
   },
 };
 
@@ -247,12 +310,14 @@ export const CLIENT_FIELDS: ClientFieldGroup = {
     { key: "serverAddr", label: "服务器地址", hint: "frps 服务端的 IP 或域名。", type: "text", group: "common", required: true, placeholder: "如 frp.example.com" },
     { key: "serverPort", label: "服务器端口", hint: "frps 服务端的监听端口，默认 7000。", type: "port", group: "common", required: true },
     {
-      key: "auth",
+      key: "auth.token",
       label: "验证令牌",
-      hint: "与服务端一致的 token，用于身份认证。",
-      type: "kv",
+      hint: "与服务端一致的 token，用于身份认证（默认 method 为 token）。",
+      type: "text",
       group: "common",
     },
+  ],
+  advanced: [
     { key: "user", label: "用户名", hint: "设置后代理名称会自动加上该前缀，用于区分用户。", type: "text", group: "advanced" },
     {
       key: "transport.protocol",
@@ -262,22 +327,26 @@ export const CLIENT_FIELDS: ClientFieldGroup = {
       group: "advanced",
       options: ["tcp", "kcp", "quic", "websocket", "wss"],
     },
-    { key: "log", label: "日志设置", type: "kv", group: "advanced" },
+    { key: "log.to", label: "日志输出", hint: "日志文件路径；填 console 则输出到标准输出。", type: "text", group: "advanced", placeholder: "console" },
     {
-      key: "webServer",
-      label: "监控面板（Web UI）",
-      hint: "启用后可在浏览器查看运行信息。",
-      type: "kv",
+      key: "log.level",
+      label: "日志级别",
+      type: "select",
       group: "advanced",
+      options: ["trace", "debug", "info", "warn", "error"],
     },
-  ],
-  advanced: [
+    { key: "log.maxDays", label: "日志保留天数", type: "number", group: "advanced" },
+    { key: "log.disablePrintColor", label: "禁用日志颜色", type: "boolean", group: "advanced" },
+    { key: "webServer.addr", label: "监控面板地址", hint: "Web UI 监听地址，默认 127.0.0.1。", type: "text", group: "advanced", placeholder: "127.0.0.1" },
+    { key: "webServer.port", label: "监控面板端口", hint: "启用 Web UI 时必填。", type: "port", group: "advanced" },
+    { key: "webServer.user", label: "监控面板用户名", type: "text", group: "advanced" },
+    { key: "webServer.password", label: "监控面板密码", type: "text", group: "advanced" },
     { key: "dnsServer", label: "自定义 DNS 服务器", type: "text", group: "advanced" },
     { key: "loginFailExit", label: "首次登录失败退出", type: "boolean", group: "advanced" },
     { key: "start", label: "只启动这些代理", hint: "一行一个代理名，不填则全部启动。", type: "stringArray", group: "advanced" },
     { key: "includes", label: "附加配置目录", hint: "加载其他配置文件目录中的代理。", type: "stringArray", group: "advanced" },
     { key: "udpPacketSize", label: "UDP 最大包长度", type: "number", group: "advanced" },
-    { key: "metadatas", label: "附加元数据", type: "kv", group: "advanced" },
+    { key: "metadatas", label: "附加元数据", hint: "会传递给服务端插件的键值对。", type: "kv", group: "advanced" },
     { key: "natHoleStunServer", label: "打洞 STUN 服务器", type: "text", group: "advanced" },
   ],
 };
@@ -298,12 +367,18 @@ const VISITOR_BASE_COMMON: FieldDef[] = [
 
 const VISITOR_ADVANCED: FieldDef[] = [
   {
-    key: "transport",
-    label: "传输设置",
-    hint: "一行一个，如：useEncryption = true",
-    type: "kv",
+    key: "transport.useEncryption",
+    label: "启用加密",
+    hint: "启用后该访问者与服务端之间的通信内容会被加密传输。",
+    type: "boolean",
     group: "advanced",
-    placeholder: "useEncryption = true",
+  },
+  {
+    key: "transport.useCompression",
+    label: "启用压缩",
+    hint: "启用后该访问者与服务端之间的通信内容会被压缩传输。",
+    type: "boolean",
+    group: "advanced",
   },
 ];
 

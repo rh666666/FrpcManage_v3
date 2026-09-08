@@ -371,6 +371,53 @@
   line-height: 1.4;
 }
 
+.field-kv {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+
+  &-empty {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  &-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  &-name {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &-value {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &-del {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--err);
+      border-color: var(--err);
+    }
+  }
+}
+
 // —— 代理 / 访问者列表 ——
 .item-list {
   display: flex;
