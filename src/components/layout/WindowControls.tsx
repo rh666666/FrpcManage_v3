@@ -1,9 +1,14 @@
 import { useEffect, useState } from "preact/hooks";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import type { CloseBehavior } from "../../types";
 import { Icon } from "@components/ui";
 
+interface WindowControlsProps {
+  closeBehavior: CloseBehavior;
+}
+
 /** 融入式窗口控件：最小化 / 最大化 / 关闭，贴 app-main 顶右。 */
-export default function WindowControls() {
+export default function WindowControls({ closeBehavior }: WindowControlsProps) {
   const [maximized, setMaximized] = useState(false);
 
   useEffect(() => {
@@ -50,7 +55,7 @@ export default function WindowControls() {
       <button
         type="button"
         className="window-control-btn window-control-btn-close"
-        title="关闭"
+        title={closeBehavior === "tray" ? "最小化到托盘" : "关闭"}
         onClick={() => void win.close()}
       >
         <Icon name="close" size={10} />

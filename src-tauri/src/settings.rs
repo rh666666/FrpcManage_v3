@@ -30,6 +30,15 @@ impl ThemeId {
     }
 }
 
+/// 关闭主窗口时的行为；未知值拒绝写入。
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum CloseBehavior {
+    #[default]
+    Quit,
+    Tray,
+}
+
 /// 落盘到 settings.json 的应用设置。
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
@@ -37,6 +46,8 @@ pub struct Settings {
     pub frpc_path: Option<String>,
     #[serde(default)]
     pub theme: ThemeId,
+    #[serde(default)]
+    pub close_behavior: CloseBehavior,
 }
 
 fn settings_path(app: &AppHandle) -> Result<PathBuf, String> {
@@ -96,6 +107,19 @@ pub fn set_theme(app: AppHandle, theme: String) -> Result<Settings, String> {
     let theme_id = ThemeId::parse(theme.trim())?;
     let mut settings = read_settings(&app)?;
     settings.theme = theme_id;
+    write_settings(&app, &settings)?;
+    Ok(settings)
+}
+
+#[tauri::command]
+pub fn set_close_behavior(app: AppHandle, close_behavior: String) -> Result<Settings, String> {
+    let behavior = match close_behavior.trim() {
+        "quit" => CloseBehavior::Quit,
+        "tray" => CloseBehavior::Tray,
+        other => return Err(format!("未知关闭行为：{other}")),
+    };
+    let mut settings = read_settings(&app)?;
+    settings.close_behavior = behavior;
     write_settings(&app, &settings)?;
     Ok(settings)
 }

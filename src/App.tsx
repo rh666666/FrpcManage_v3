@@ -1,7 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import { listen } from "@tauri-apps/api/event";
 import "./styles/index.scss";
-import type { FrpcInstance, Settings, ThemeId, ViewId } from "./types";
+import type { FrpcInstance, Settings, ThemeId, ViewId, CloseBehavior } from "./types";
 import AppShell from "./components/layout/AppShell";
 import { processApi, settingsApi } from "./lib/tauri";
 import { applyTheme, normalizeTheme } from "./lib/theme";
@@ -65,14 +65,26 @@ function App() {
     }
   };
 
+  const saveCloseBehavior = async (closeBehavior: CloseBehavior) => {
+    try {
+      const next = await settingsApi.setCloseBehavior(closeBehavior);
+      setSettings(next);
+    } catch (e) {
+      console.error("保存关闭行为失败", e);
+      throw e;
+    }
+  };
+
   return (
     <AppShell
       view={view}
       onNavigate={setView}
       frpcPath={settings.frpcPath ?? null}
       theme={normalizeTheme(settings.theme)}
+      closeBehavior={settings.closeBehavior ?? "quit"}
       onSaveFrpcPath={saveFrpcPath}
       onSaveTheme={saveTheme}
+      onSaveCloseBehavior={saveCloseBehavior}
       instances={instances}
       promptMissingFrpcPath={promptMissingFrpcPath}
     />

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "preact/hooks";
-import type { FrpcInstance, ThemeId, ViewId } from "../../types";
+import type { FrpcInstance, ThemeId, ViewId, CloseBehavior } from "../../types";
 import { Icon, SettingsDialog, StatusDot } from "@components/ui";
 
 interface SideBarProps {
@@ -7,8 +7,10 @@ interface SideBarProps {
   onNavigate: (view: ViewId) => void;
   frpcPath: string | null;
   theme: ThemeId;
+  closeBehavior: CloseBehavior;
   onSaveFrpcPath: (path: string | null) => Promise<void>;
   onSaveTheme: (theme: ThemeId) => Promise<void>;
+  onSaveCloseBehavior: (closeBehavior: CloseBehavior) => Promise<void>;
   instances: FrpcInstance[];
   promptMissingFrpcPath: boolean;
 }
@@ -23,8 +25,10 @@ export default function SideBar({
   onNavigate,
   frpcPath,
   theme,
+  closeBehavior,
   onSaveFrpcPath,
   onSaveTheme,
+  onSaveCloseBehavior,
   instances,
   promptMissingFrpcPath,
 }: SideBarProps) {
@@ -85,9 +89,11 @@ export default function SideBar({
         <SettingsDialog
           frpcPath={frpcPath}
           theme={theme}
+          closeBehavior={closeBehavior}
           onSaveFrpcPath={handleSavePath}
           onClearFrpcPath={handleClearPath}
           onThemeChange={onSaveTheme}
+          onCloseBehaviorChange={onSaveCloseBehavior}
           onCancel={() => setDialogOpen(false)}
         />
       )}

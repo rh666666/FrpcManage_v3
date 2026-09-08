@@ -1,5 +1,5 @@
 import { useEffect } from "preact/hooks";
-import type { FrpcInstance, ThemeId, ViewId } from "../../types";
+import type { FrpcInstance, ThemeId, ViewId, CloseBehavior } from "../../types";
 import SideBar from "./SideBar";
 import WindowControls from "./WindowControls";
 import RunView from "../run/RunView";
@@ -10,8 +10,10 @@ interface AppShellProps {
   onNavigate: (view: ViewId) => void;
   frpcPath: string | null;
   theme: ThemeId;
+  closeBehavior: CloseBehavior;
   onSaveFrpcPath: (path: string | null) => Promise<void>;
   onSaveTheme: (theme: ThemeId) => Promise<void>;
+  onSaveCloseBehavior: (closeBehavior: CloseBehavior) => Promise<void>;
   instances: FrpcInstance[];
   promptMissingFrpcPath: boolean;
 }
@@ -21,8 +23,10 @@ export default function AppShell({
   onNavigate,
   frpcPath,
   theme,
+  closeBehavior,
   onSaveFrpcPath,
   onSaveTheme,
+  onSaveCloseBehavior,
   instances,
   promptMissingFrpcPath,
 }: AppShellProps) {
@@ -53,13 +57,15 @@ export default function AppShell({
         onNavigate={onNavigate}
         frpcPath={frpcPath}
         theme={theme}
+        closeBehavior={closeBehavior}
         onSaveFrpcPath={onSaveFrpcPath}
         onSaveTheme={onSaveTheme}
+        onSaveCloseBehavior={onSaveCloseBehavior}
         instances={instances}
         promptMissingFrpcPath={promptMissingFrpcPath}
       />
       <div className="app-main-wrap">
-        <WindowControls />
+        <WindowControls closeBehavior={closeBehavior} />
         <main className="app-main">
           {view === "run" ? <RunView instances={instances} frpcPath={frpcPath} /> : <ConfigView />}
         </main>

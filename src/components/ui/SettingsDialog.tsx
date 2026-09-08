@@ -1,33 +1,41 @@
 import { useState } from "preact/hooks";
 import { open } from "@tauri-apps/plugin-dialog";
-import type { ThemeId } from "../../types";
+import type { ThemeId, CloseBehavior } from "../../types";
 import { THEME_OPTIONS } from "../../lib/theme";
-import { Icon } from "@components/ui";
 import Button from "./Button";
 import Modal from "./Modal";
 
 interface SettingsDialogProps {
   frpcPath: string | null;
   theme: ThemeId;
+  closeBehavior: CloseBehavior;
   onSaveFrpcPath: (path: string) => Promise<void>;
   onClearFrpcPath: () => Promise<void>;
   onThemeChange: (theme: ThemeId) => Promise<void>;
+  onCloseBehaviorChange: (closeBehavior: CloseBehavior) => Promise<void>;
   onCancel: () => void;
 }
+
+const CLOSE_BEHAVIOR_OPTIONS: { id: CloseBehavior; label: string; desc: string }[] = [
+  { id: "quit", label: "退出应用", desc: "结束 frpc 并退出" },
+  { id: "tray", label: "最小化到托盘", desc: "隐藏窗口，frpc 继续运行" },
+];
 
 export default function SettingsDialog({
   frpcPath,
   theme,
+  closeBehavior,
   onSaveFrpcPath,
   onClearFrpcPath,
   onThemeChange,
+  onCloseBehaviorChange,
   onCancel,
 }: SettingsDialogProps) {
   const [path, setPath] = useState(frpcPath ?? "");
   const [error, setError] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
   const [themeBusy, setThemeBusy] = useState(false);
-  const [appearanceOpen, setAppearanceOpen] = useState(false);
+  const [closeBehaviorBusy, setCloseBehaviorBusy] = useState(false);
 
   const trimmed = path.trim();
 
@@ -79,6 +87,18 @@ export default function SettingsDialog({
     }
   };
 
+  const selectCloseBehavior = async (id: CloseBehavior) => {
+    if (id === closeBehavior || closeBehaviorBusy) return;
+    setCloseBehaviorBusy(true);
+    try {
+      await onCloseBehaviorChange(id);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setCloseBehaviorBusy(false);
+    }
+  };
+
   return (
     <Modal
       title="设置"
@@ -123,32 +143,44 @@ export default function SettingsDialog({
         </div>
       </div>
       <div className="settings-section">
-        <button
-          type="button"
-          className="settings-section-toggle"
-          onClick={() => setAppearanceOpen(!appearanceOpen)}
+        <div className="settings-section-title">外观</div>
+        <select
+          className="field-input field-select"
+          value={theme}
+          disabled={themeBusy}
+          title={THEME_OPTIONS.find((t) => t.id === theme)?.desc}
+          onChange={(e) => {
+            const next = THEME_OPTIONS.find((t) => t.id === (e.target as HTMLSelectElement).value);
+            if (next) void selectTheme(next.id);
+          }}
         >
-          <span className="settings-section-caret">
-            <Icon name={appearanceOpen ? "chevron-up" : "chevron-down"} />
-          </span>
-          <span className="settings-section-title">外观</span>
-        </button>
-        {appearanceOpen && (
-          <div className="theme-list">
-            {THEME_OPTIONS.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                className={`theme-item ${theme === t.id ? "is-active" : ""}`}
-                disabled={themeBusy}
-                onClick={() => selectTheme(t.id)}
-              >
-                <span className="theme-item-label">{t.label}</span>
-                <span className="theme-item-desc">{t.desc}</span>
-              </button>
-            ))}
-          </div>
-        )}
+          {THEME_OPTIONS.map((t) => (
+            <option key={t.id} value={t.id} title={t.desc}>
+              {t.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="settings-section">
+        <div className="settings-section-title">关闭窗口时</div>
+        <select
+          className="field-input field-select"
+          value={closeBehavior}
+          disabled={closeBehaviorBusy}
+          title={CLOSE_BEHAVIOR_OPTIONS.find((opt) => opt.id === closeBehavior)?.desc}
+          onChange={(e) => {
+            const next = CLOSE_BEHAVIOR_OPTIONS.find(
+              (opt) => opt.id === (e.target as HTMLSelectElement).value,
+            );
+            if (next) void selectCloseBehavior(next.id);
+          }}
+        >
+          {CLOSE_BEHAVIOR_OPTIONS.map((opt) => (
+            <option key={opt.id} value={opt.id} title={opt.desc}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
       </div>
       {error && <div className="modal-error">{error}</div>}
     </Modal>

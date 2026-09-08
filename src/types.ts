@@ -32,7 +32,11 @@ export interface ConfigFileDetail {
 
 export type ThemeId = "dark" | "light" | "isolation" | "lieyang";
 
+/** 关闭主窗口时的行为。 */
+export type CloseBehavior = "quit" | "tray";
+
 export interface Settings {
   frpcPath?: string | null;
   theme?: ThemeId;
+  closeBehavior?: CloseBehavior;
 }

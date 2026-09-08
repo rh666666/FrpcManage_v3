@@ -1,6 +1,7 @@
 mod config;
 mod process;
 mod settings;
+mod tray;
 
 use tauri::Manager;
 
@@ -15,6 +16,10 @@ pub fn run() {
             app.state::<process::ProcessManager>()
                 .hydrate(&handle)
                 .map_err(|e| Box::<dyn std::error::Error>::from(e))?;
+            tray::register(app)?;
+            if let Some(window) = app.get_webview_window("main") {
+                tray::attach_close_handler(&window);
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -29,6 +34,7 @@ pub fn run() {
             settings::set_frpc_path,
             settings::clear_frpc_path,
             settings::set_theme,
+            settings::set_close_behavior,
             process::list_instances,
             process::create_instance,
             process::remove_instance,

@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { ConfigFileMeta, FrpcInstance, Settings, ThemeId } from "../types";
+import type { ConfigFileMeta, FrpcInstance, Settings, ThemeId, CloseBehavior } from "../types";
 
 export const configApi = {
   getConfigsDir: () => invoke<string>("get_configs_dir"),
@@ -19,6 +19,8 @@ export const settingsApi = {
     invoke<Settings>("set_frpc_path", { path }),
   clearFrpcPath: () => invoke<Settings>("clear_frpc_path"),
   setTheme: (theme: ThemeId) => invoke<Settings>("set_theme", { theme }),
+  setCloseBehavior: (closeBehavior: CloseBehavior) =>
+    invoke<Settings>("set_close_behavior", { closeBehavior }),
 };
 
 export const processApi = {
