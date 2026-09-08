@@ -13,6 +13,7 @@ interface AppShellProps {
   onSaveFrpcPath: (path: string | null) => Promise<void>;
   onSaveTheme: (theme: ThemeId) => Promise<void>;
   instances: FrpcInstance[];
+  promptMissingFrpcPath: boolean;
 }
 
 export default function AppShell({
@@ -23,6 +24,7 @@ export default function AppShell({
   onSaveFrpcPath,
   onSaveTheme,
   instances,
+  promptMissingFrpcPath,
 }: AppShellProps) {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -54,6 +56,7 @@ export default function AppShell({
         onSaveFrpcPath={onSaveFrpcPath}
         onSaveTheme={onSaveTheme}
         instances={instances}
+        promptMissingFrpcPath={promptMissingFrpcPath}
       />
       <div className="app-main-wrap">
         <WindowControls />

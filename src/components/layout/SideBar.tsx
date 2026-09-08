@@ -1,4 +1,4 @@
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import type { FrpcInstance, ThemeId, ViewId } from "../../types";
 import { Icon, SettingsDialog, StatusDot } from "@components/ui";
 
@@ -10,6 +10,7 @@ interface SideBarProps {
   onSaveFrpcPath: (path: string | null) => Promise<void>;
   onSaveTheme: (theme: ThemeId) => Promise<void>;
   instances: FrpcInstance[];
+  promptMissingFrpcPath: boolean;
 }
 
 const NAV_ITEMS: { id: ViewId; label: string; icon: "activity" | "file" }[] = [
@@ -25,9 +26,16 @@ export default function SideBar({
   onSaveFrpcPath,
   onSaveTheme,
   instances,
+  promptMissingFrpcPath,
 }: SideBarProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const hasRunning = instances.some((i) => i.status === "running");
+
+  useEffect(() => {
+    if (promptMissingFrpcPath) {
+      setDialogOpen(true);
+    }
+  }, [promptMissingFrpcPath]);
 
   const handleSavePath = async (path: string) => {
     await onSaveFrpcPath(path);
@@ -62,8 +70,8 @@ export default function SideBar({
           </button>
         ))}
       </div>
-      <div className="sidebar-version">v3.0.0</div>
       <div className="sidebar-footer">
+        <div className="sidebar-version">v3.0.0</div>
         <button
           type="button"
           className="sidebar-settings"
@@ -71,7 +79,6 @@ export default function SideBar({
           title="设置"
         >
           <Icon name="settings" size={14} />
-          设置
         </button>
       </div>
       {dialogOpen && (

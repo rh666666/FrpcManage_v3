@@ -10,6 +10,7 @@ function App() {
   const [view, setView] = useState<ViewId>("run");
   const [instances, setInstances] = useState<FrpcInstance[]>([]);
   const [settings, setSettings] = useState<Settings>({});
+  const [promptMissingFrpcPath, setPromptMissingFrpcPath] = useState(false);
 
   useEffect(() => {
     settingsApi
@@ -17,6 +18,9 @@ function App() {
       .then((next) => {
         setSettings(next);
         applyTheme(normalizeTheme(next.theme));
+        if (!next.frpcPath?.trim()) {
+          setPromptMissingFrpcPath(true);
+        }
       })
       .catch((e) => console.error("加载设置失败", e));
   }, []);
@@ -70,6 +74,7 @@ function App() {
       onSaveFrpcPath={saveFrpcPath}
       onSaveTheme={saveTheme}
       instances={instances}
+      promptMissingFrpcPath={promptMissingFrpcPath}
     />
   );
 }

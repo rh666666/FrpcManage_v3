@@ -11,7 +11,10 @@ export type IconName =
   | "close"
   | "minimize"
   | "maximize"
-  | "restore";
+  | "restore"
+  | "play"
+  | "rotate-cw"
+  | "square";
 
 interface IconProps {
   name: IconName;
@@ -34,6 +37,9 @@ const PATHS: Record<IconName, string> = {
   minimize: "M5 12h14",
   maximize: "M5 5h14v14H5z",
   restore: "M8 8h10v10H8z M6 6h10v10",
+  play: "M7 5v14l11-7Z",
+  "rotate-cw": "M19 12a7 7 0 1 1-7-7c1.96 0 3.84.77 5.24 2.12L19 10 M19 5.5v3.5h-3.5",
+  square: "M5 5h14v14H5z",
 };
 
 export default function Icon({ name, size = 14, className }: IconProps) {

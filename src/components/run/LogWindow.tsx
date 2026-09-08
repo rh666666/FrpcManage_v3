@@ -2,7 +2,7 @@ import { Fragment } from "preact";
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { listen } from "@tauri-apps/api/event";
 import type { FrpcInstance, InstanceLogEvent } from "../../types";
-import { Button } from "@components/ui";
+import { Button, Icon } from "@components/ui";
 import { parseAnsiLines } from "../../lib/ansi";
 import { processApi } from "../../lib/tauri";
 
@@ -19,13 +19,6 @@ function errText(e: unknown): string {
 function startTitle(instance: FrpcInstance | null, frpcPath: string | null): string | undefined {
   if (!instance) return "请先新增实例";
   if (!frpcPath) return "尚未设置 frpc 路径";
-  if (instance.status === "running") return "实例已在运行";
-  return undefined;
-}
-
-function runningOnlyTitle(instance: FrpcInstance | null): string | undefined {
-  if (!instance) return "请先新增实例";
-  if (instance.status !== "running") return "实例未在运行";
   return undefined;
 }
 
@@ -79,7 +72,7 @@ export default function LogWindow({ instance, frpcPath }: LogWindowProps) {
   const parsedLines = useMemo(() => parseAnsiLines(lines), [lines]);
 
   const startDisabled = startTitle(instance, frpcPath);
-  const stopDisabled = runningOnlyTitle(instance);
+  const isRunning = instance?.status === "running";
   const hasInstance = instance != null;
 
   const run = async (fn: () => Promise<unknown>) => {
@@ -104,30 +97,35 @@ export default function LogWindow({ instance, frpcPath }: LogWindowProps) {
     <section className="log-window">
       {toast && <div className="config-toast">{toast}</div>}
       <header className="log-toolbar">
-        <Button
-          variant="ghost"
-          disabled={!!startDisabled}
-          title={startDisabled}
-          onClick={() => instance && run(() => processApi.start(instance.id))}
-        >
-          启动
-        </Button>
-        <Button
-          variant="ghost"
-          disabled={!!stopDisabled}
-          title={stopDisabled}
-          onClick={() => instance && run(() => processApi.stop(instance.id))}
-        >
-          停止
-        </Button>
-        <Button
-          variant="ghost"
-          disabled={!!stopDisabled}
-          title={stopDisabled}
-          onClick={() => instance && run(() => processApi.restart(instance.id))}
-        >
-          重启
-        </Button>
+        <div className="log-toolbar-lifecycle">
+          {isRunning ? (
+            <>
+              <Button
+                variant="ghost"
+                title="重启"
+                onClick={() => instance && run(() => processApi.restart(instance.id))}
+              >
+                <Icon name="rotate-cw" size={15} />
+              </Button>
+              <Button
+                variant="ghost"
+                title="停止"
+                onClick={() => instance && run(() => processApi.stop(instance.id))}
+              >
+                <Icon name="square" size={15} />
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="ghost"
+              disabled={!!startDisabled}
+              title={startDisabled ?? "启动"}
+              onClick={() => instance && run(() => processApi.start(instance.id))}
+            >
+              <Icon name="play" size={15} />
+            </Button>
+          )}
+        </div>
         <span className="toolbar-spacer" />
         <Button
           variant="ghost"

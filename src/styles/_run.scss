@@ -130,6 +130,22 @@
   }
 }
 
+.log-toolbar-lifecycle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  .btn {
+    width: 28px;
+    padding: 0;
+
+    svg {
+      display: block;
+      flex-shrink: 0;
+    }
+  }
+}
+
 .log-body {
   flex: 1;
   min-height: 0;
