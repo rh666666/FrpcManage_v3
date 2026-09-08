@@ -30,7 +30,7 @@ export interface ConfigFileDetail {
   content: string;
 }
 
-export type ThemeId = "dark" | "light" | "aishenleishen";
+export type ThemeId = "dark" | "light" | "isolation" | "lieyang";
 
 export interface Settings {
   frpcPath?: string | null;

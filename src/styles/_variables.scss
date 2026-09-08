@@ -55,7 +55,7 @@
   --brand-tag-text: #3b82f6;
 }
 
-[data-theme="aishenleishen"] {
+[data-theme="isolation"] {
   --bg: #1e1630;
   --bg-elevated: #2a2042;
   --bg-hover: #352a52;
@@ -75,6 +75,28 @@
   --log-bright: var(--text);
   --brand-tag-bg: rgba(125, 185, 255, 0.16);
   --brand-tag-text: #8ec5ff;
+}
+
+[data-theme="lieyang"] {
+  --bg: #f3ead0;
+  --bg-elevated: #fffaf0;
+  --bg-hover: #eadcaf;
+  --bg-inset: #f8f2dc;
+  --border: rgba(92, 72, 212, 0.16);
+  --text: #1e1a2e;
+  --text-dim: #7a6b42;
+  --accent: #5c48d4;
+  --accent-dim: #4a38bc;
+  --on-accent: #fffaf0;
+  --ok: #1f9d62;
+  --warn: #a88414;
+  --err: #c93c4a;
+  --log-red: var(--err);
+  --log-green: var(--ok);
+  --log-yellow: var(--warn);
+  --log-bright: var(--text);
+  --brand-tag-bg: rgba(92, 72, 212, 0.12);
+  --brand-tag-text: #5c48d4;
 }
 
 // SCSS 侧可复用工具变量（编译期，默认深色）

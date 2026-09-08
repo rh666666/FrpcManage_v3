@@ -9,7 +9,8 @@ export interface ThemeOption {
 export const THEME_OPTIONS: ThemeOption[] = [
   { id: "dark", label: "深色", desc: "默认柔和深灰" },
   { id: "light", label: "浅色", desc: "浅色背景" },
-  { id: "aishenleishen", label: "爱上雷神", desc: "黄紫配色" },
+  { id: "isolation", label: "黄紫配色", desc: "爱上雷神" },
+  { id: "lieyang", label: "黄紫配色2", desc: "终将升起的烈阳！" },
 ];
 
 const DEFAULT_THEME: ThemeId = "dark";
@@ -18,10 +19,11 @@ const DEFAULT_THEME: ThemeId = "dark";
 export function applyTheme(theme: ThemeId | undefined): void {
   const id = theme ?? DEFAULT_THEME;
   document.documentElement.dataset.theme = id;
-  document.documentElement.style.colorScheme = id === "light" ? "light" : "dark";
+  document.documentElement.style.colorScheme = id === "light" || id === "lieyang" ? "light" : "dark";
 }
 
 export function normalizeTheme(theme: string | undefined | null): ThemeId {
-  if (theme === "light" || theme === "aishenleishen") return theme;
+  if (theme === "light" || theme === "lieyang") return theme;
+  if (theme === "isolation" || theme === "aishenleishen") return "isolation";
   return DEFAULT_THEME;
 }

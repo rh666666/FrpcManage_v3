@@ -2,6 +2,7 @@ import { useState } from "preact/hooks";
 import { open } from "@tauri-apps/plugin-dialog";
 import type { ThemeId } from "../../types";
 import { THEME_OPTIONS } from "../../lib/theme";
+import { Icon } from "@components/ui";
 import Button from "./Button";
 import Modal from "./Modal";
 
@@ -26,6 +27,7 @@ export default function SettingsDialog({
   const [error, setError] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
   const [themeBusy, setThemeBusy] = useState(false);
+  const [appearanceOpen, setAppearanceOpen] = useState(false);
 
   const trimmed = path.trim();
 
@@ -121,21 +123,32 @@ export default function SettingsDialog({
         </div>
       </div>
       <div className="settings-section">
-        <div className="settings-section-title">外观</div>
-        <div className="theme-list">
-          {THEME_OPTIONS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              className={`theme-item ${theme === t.id ? "is-active" : ""}`}
-              disabled={themeBusy}
-              onClick={() => selectTheme(t.id)}
-            >
-              <span className="theme-item-label">{t.label}</span>
-              <span className="theme-item-desc">{t.desc}</span>
-            </button>
-          ))}
-        </div>
+        <button
+          type="button"
+          className="settings-section-toggle"
+          onClick={() => setAppearanceOpen(!appearanceOpen)}
+        >
+          <span className="settings-section-caret">
+            <Icon name={appearanceOpen ? "chevron-up" : "chevron-down"} />
+          </span>
+          <span className="settings-section-title">外观</span>
+        </button>
+        {appearanceOpen && (
+          <div className="theme-list">
+            {THEME_OPTIONS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                className={`theme-item ${theme === t.id ? "is-active" : ""}`}
+                disabled={themeBusy}
+                onClick={() => selectTheme(t.id)}
+              >
+                <span className="theme-item-label">{t.label}</span>
+                <span className="theme-item-desc">{t.desc}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       {error && <div className="modal-error">{error}</div>}
     </Modal>

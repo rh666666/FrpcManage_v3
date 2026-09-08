@@ -12,8 +12,10 @@ pub enum ThemeId {
     #[default]
     Dark,
     Light,
-    #[serde(rename = "aishenleishen")]
-    AishenLeishen,
+    #[serde(rename = "isolation", alias = "aishenleishen")]
+    Isolation,
+    #[serde(rename = "lieyang")]
+    Lieyang,
 }
 
 impl ThemeId {
@@ -21,7 +23,8 @@ impl ThemeId {
         match value {
             "dark" => Ok(Self::Dark),
             "light" => Ok(Self::Light),
-            "aishenleishen" => Ok(Self::AishenLeishen),
+            "isolation" | "aishenleishen" => Ok(Self::Isolation),
+            "lieyang" => Ok(Self::Lieyang),
             _ => Err(format!("未知主题：{value}")),
         }
     }
