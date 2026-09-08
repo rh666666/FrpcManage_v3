@@ -1,6 +1,6 @@
 [package]
 name = "frpcmanager_v3"
-version = "3.0.0"
+version = "3.0.1"
 description = "A Tool for managing frp client"
 authors = ["adoleiiiiii"]
 edition = "2021"

@@ -1019,7 +1019,7 @@ dependencies = [
 
 [[package]]
 name = "frpcmanager_v3"
-version = "3.0.0"
+version = "3.0.1"
 dependencies = [
  "serde",
  "serde_json",

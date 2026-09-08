@@ -2,7 +2,7 @@
 
 Windows 桌面应用：在本地管理多份 [frpc](https://github.com/fatedier/frp) 配置，并控制多个客户端进程的启动、停止与日志。
 
-当前版本 `3.0.0`。需自行准备 frpc 可执行文件（配置格式按 frp 0.52+ 的 TOML：`serverAddr`、`[[proxies]]`、`[[visitors]]`）。
+当前版本 `3.0.1`。需自行准备 frpc 可执行文件（配置格式按 frp 0.52+ 的 TOML：`serverAddr`、`[[proxies]]`、`[[visitors]]`）。
 
 ## 能做什么
 
