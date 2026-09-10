@@ -44,6 +44,10 @@ pub fn run() {
             process::stop_all_instances,
             process::get_instance_logs,
             process::clear_instance_logs,
+            tray::open_tray_menu,
+            tray::hide_tray_menu,
+            tray::open_main_window,
+            tray::quit_app,
         ])
         .build(tauri::generate_context!())
         .expect("error while running tauri application")

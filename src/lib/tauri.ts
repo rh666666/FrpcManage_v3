@@ -23,6 +23,20 @@ export const settingsApi = {
     invoke<Settings>("set_close_behavior", { closeBehavior }),
 };
 
+/** 托盘菜单窗口的尺寸（CSS px）由前端测量后回传，Rust 侧据锚点摆位。 */
+export interface TrayMenuSize {
+  height: number;
+  width: number;
+  inset: number;
+}
+
+export const trayApi = {
+  open: (size: TrayMenuSize) => invoke<void>("open_tray_menu", { ...size }),
+  hide: () => invoke<void>("hide_tray_menu"),
+  openMain: () => invoke<void>("open_main_window"),
+  quit: () => invoke<void>("quit_app"),
+};
+
 export const processApi = {
   list: () => invoke<FrpcInstance[]>("list_instances"),
   create: (name: string, configName: string) =>

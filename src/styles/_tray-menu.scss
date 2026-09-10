@@ -1,0 +1,167 @@
+// 托盘菜单窗口：整窗透明，只有中间的面板可见（四周留白给 CSS 阴影）
+html[data-window="tray"] {
+  &,
+  body,
+  #root {
+    height: auto;
+    background: transparent;
+    overflow: visible;
+  }
+}
+
+.tray-root {
+  width: max-content;
+}
+
+.tray-panel {
+  width: 264px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  // 外扩量（offset-y + blur）不能超过 TrayMenu.tsx 的 INSET，否则阴影会被窗口边缘裁掉
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+  // 窗口由 Rust 先显示再置位，入场过渡在显示之后播放
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+
+  &.is-shown {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.tray-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.tray-title {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tray-meta {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.tray-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--space-1) 0;
+  list-style: none;
+}
+
+.tray-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  height: 30px;
+  padding: 0 var(--space-3);
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover,
+  &[data-active="true"] {
+    background: var(--bg-hover);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: default;
+    background: transparent;
+  }
+}
+
+.tray-row-name {
+  flex: 1 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tray-row-meta {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.tray-row-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  flex-shrink: 0;
+  color: var(--text-dim);
+}
+
+.tray-row-label {
+  flex: 1 1 auto;
+}
+
+// 行内动作按钮：占位不变，悬停/键盘选中时浮现
+.tray-row-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  flex-shrink: 0;
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity 0.1s ease;
+
+  .tray-row:hover &,
+  .tray-row[data-active="true"] & {
+    opacity: 1;
+  }
+}
+
+.tray-empty {
+  flex-shrink: 0;
+  margin: 0;
+  padding: var(--space-3);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.tray-error {
+  flex-shrink: 0;
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--err);
+}
+
+.tray-footer {
+  flex-shrink: 0;
+  padding: var(--space-1) 0;
+  border-top: 1px solid var(--border);
+}
+
+// 错误行自带分隔线，紧跟其后的底栏不再重复画
+.tray-error + .tray-footer {
+  border-top: 0;
+}
+
+.tray-row-danger:hover,
+.tray-row-danger[data-active="true"] {
+  color: var(--err);
+}
