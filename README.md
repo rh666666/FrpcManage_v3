@@ -23,7 +23,7 @@ Windows 桌面应用：在本地管理多份 [frpc](https://github.com/fatedier/
 **外观与设置**
 
 - 无框窗口，标题栏融入页眉（最小化 / 最大化 / 关闭）
-- 三套主题：深色、浅色、爱上雷神
+- 三套主题：深色、浅色、黄紫配色
 - 在设置里指定 frpc 路径
 
 快捷键：`Ctrl+1` 运行监控，`Ctrl+2` 配置管理（焦点在输入框时不生效）。
@@ -82,4 +82,9 @@ src-tauri/src/       Rust：config / process / settings
 
 ## 技术栈
 
-Tauri 2、Rust、Preact、TypeScript、Vite、SCSS。作者：adoleiiiiii。
+Tauri 2、Rust、Preact、TypeScript、Vite、SCSS。
+
+
+## 传送门：月神代理
+
+[MoonProxy](https://github.com/MoonProxyHQ/moonproxy-desktop) — 跨平台 FRP 桌面客户端（Tauri v2 + Rust），可视化代理规则、实时流量监控、系统托盘常驻。面向 macOS 用户 + 非技术用户的一站式体验。
