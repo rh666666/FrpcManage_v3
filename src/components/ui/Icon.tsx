@@ -16,6 +16,7 @@ export type IconName =
   | "rotate-cw"
   | "square"
   | "power"
+  | "import"
   | "app-window";
 
 interface IconProps {
@@ -43,6 +44,7 @@ const PATHS: Record<IconName, string> = {
   "rotate-cw": "M19 12a7 7 0 1 1-7-7c1.96 0 3.84.77 5.24 2.12L19 10 M19 5.5v3.5h-3.5",
   square: "M5 5h14v14H5z",
   power: "M12 3v9 M18.36 6.64a9 9 0 1 1-12.73 0",
+  import: "M12 3v12 M7 10l5 5 5-5 M4 19h16",
   "app-window": "M3 5h18v14H3z M3 9h18",
 };
 

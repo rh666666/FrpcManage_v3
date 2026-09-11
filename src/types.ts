@@ -30,6 +30,42 @@ export interface ConfigFileDetail {
   content: string;
 }
 
+/** 导入扫描出的候选文件。invalid 条目带 error，conflict 条目带 conflictReason。 */
+export interface ImportScannedItem {
+  sourcePath: string;
+  sourceDisplay: string;
+  name: string;
+  conflict: boolean;
+  conflictReason?: string | null;
+  valid: boolean;
+  error?: string | null;
+}
+
+/** 扫描结果。scannedFiles 含被跳过的非 toml 文件。 */
+export interface ImportScanResult {
+  items: ImportScannedItem[];
+  scannedFiles: number;
+  scannedDirs: number;
+  truncated: boolean;
+}
+
+/** 导入计划条目，回传给后端执行复制。 */
+export interface ImportPlanItem {
+  sourcePath: string;
+  name: string;
+}
+
+export interface ImportFailure {
+  sourceDisplay: string;
+  reason: string;
+}
+
+export interface ImportOutcome {
+  imported: string[];
+  skipped: string[];
+  failed: ImportFailure[];
+}
+
 export type ThemeId = "dark" | "light" | "isolation" | "lieyang";
 
 /** 关闭主窗口时的行为。 */

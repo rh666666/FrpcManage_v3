@@ -1,6 +1,6 @@
 {
   "productName": "frpcmanager_v3",
-  "version": "3.0.1",
+  "version": "3.0.2-dev.1",
   "identifier": "frpcManagerV3",
   "build": {
     "beforeDevCommand": "pnpm dev",

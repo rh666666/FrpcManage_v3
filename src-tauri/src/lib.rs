@@ -1,4 +1,5 @@
 mod config;
+mod import;
 mod process;
 mod settings;
 mod tray;
@@ -30,6 +31,8 @@ pub fn run() {
             config::create_config_file,
             config::delete_config_file,
             config::rename_config_file,
+            import::scan_import_source,
+            import::apply_config_import,
             settings::get_settings,
             settings::set_frpc_path,
             settings::clear_frpc_path,

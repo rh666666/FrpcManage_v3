@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Tauri 2 desktop app **FrpcManager V3** (`3.0.1`): keeps multiple frpc TOML configs and manages the lifecycle of their client processes. Frontend Preact + TypeScript + Vite + SCSS (`src/`), backend Rust (`src-tauri/src/`), Windows host. Implemented end to end: config CRUD + visual editor, per-instance start/stop/restart with live ANSI logs, tray icon with a self-drawn menu, settings + themes.
+Tauri 2 desktop app **FrpcManager V3** (`3.0.2-dev.1`): keeps multiple frpc TOML configs and manages the lifecycle of their client processes. Frontend Preact + TypeScript + Vite + SCSS (`src/`), backend Rust (`src-tauri/src/`), Windows host. Implemented end to end: config CRUD + visual editor, batch config import (files or a DFS-scanned directory), per-instance start/stop/restart with live ANSI logs, tray icon with a self-drawn menu, settings + themes.
 
 ## Never
 - **pnpm only.** `beforeDevCommand`/`beforeBuildCommand` in `src-tauri/tauri.conf.json` hardcode it; no npm/yarn.
@@ -13,14 +13,14 @@ Tauri 2 desktop app **FrpcManager V3** (`3.0.1`): keeps multiple frpc TOML confi
 ## Commands
 - `pnpm tauri dev` — the app; frontend port `1420` is fixed with `strictPort`, so it must be free. `pnpm dev` — frontend only, but window controls and IPC need a real Tauri session.
 - `pnpm build` — `tsc && vite build`; `tsc` is strict and is the only typecheck (unused locals/params fail it). `pnpm tauri build` — release bundle.
-- Rust is compiled by the Tauri CLI; no cargo script is wired into the web workflow. No lint and no web tests — the only tests are the pure-geometry menu-placement ones in `src-tauri/src/tray.rs` (`cargo test`).
+- Rust is compiled by the Tauri CLI; no cargo script is wired into the web workflow. No lint and no web tests — Rust tests are `cargo test` (tray menu placement geometry in `src-tauri/src/tray.rs`, import scan/naming rules in `src-tauri/src/import.rs`).
 
 ## Architecture
 - `src/components/` splits into `layout` (shell, sidebar, window controls), `run` (instance tabs, log window), `config` (list, editor, field sections), `tray` (the menu), `ui` (primitives). `src/lib/` holds the invoke wrappers (`tauri.ts`), TOML read/write (`toml.ts`), the proxy/visitor field schema (`proxySchema.ts`), ANSI parsing, and theme helpers.
 - Styles are SCSS split by concern; `src/styles/index.scss` is the entry and the authoritative partial list — `@use "variables"` for tokens, import `index.scss` from each window root (`App.tsx`, `TrayMenu.tsx`).
-- UI primitives live in `src/components/ui/` (Button, Switch, StatusDot, Icon, Modal, PromptDialog, ConfirmDialog, SettingsDialog — see `index.ts`) and are imported via the `@components/ui` alias, declared in both `vite.config.ts` and `tsconfig.json`. Prefer them to ad-hoc JSX.
+- UI primitives live in `src/components/ui/` (Button, Switch, StatusDot, Icon, Modal, PromptDialog, ConfirmDialog, SettingsDialog — see `index.ts`) and are imported via the `@components/ui` alias, declared in both `vite.config.ts` and `tsconfig.json`. Prefer them to ad-hoc JSX. Page-level dialogs live next to their page (`config/ConfigImportDialog.tsx`).
 - One frontend bundle serves two windows: `main` and the tray menu, which loads `index.html#tray` and is routed in `src/main.tsx`. Both names must stay in `capabilities/default.json` → `windows`.
-- Rust: `config.rs` (TOML CRUD under `configs/`), `process.rs` (`ProcessManager`: roster, child processes spawned with `CREATE_NO_WINDOW`, 2000-line log ring, emits `instance-changed` / `instance-log`), `settings.rs` (`settings.json`, `ThemeId`, `CloseBehavior`), `tray.rs` (tray icon, menu anchoring, emits `tray-menu-open`). Backend→frontend is Tauri events consumed with `listen()`.
+- Rust: `config.rs` (TOML CRUD under `configs/`), `import.rs` (batch import: DFS directory scan, TOML/name validation, same-name skip), `process.rs` (`ProcessManager`: roster, child processes spawned with `CREATE_NO_WINDOW`, 2000-line log ring, emits `instance-changed` / `instance-log`), `settings.rs` (`settings.json`, `ThemeId`, `CloseBehavior`), `tray.rs` (tray icon, menu anchoring, emits `tray-menu-open`). Backend→frontend is Tauri events consumed with `listen()`.
 - All state is in the app data dir: `configs/*.toml`, `settings.json`, `instances.json`. The instance roster survives a restart; the processes do not.
 - Rust lib crate is `frpcmanager_v3_lib` (unique name required on Windows) and `main.rs` calls `run()` — don't rename. `vite.config.ts` ignores `src-tauri/**` in watch — keep it that way.
 

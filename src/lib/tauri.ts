@@ -1,5 +1,14 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { ConfigFileMeta, FrpcInstance, Settings, ThemeId, CloseBehavior } from "../types";
+import type {
+  ConfigFileMeta,
+  FrpcInstance,
+  ImportOutcome,
+  ImportPlanItem,
+  ImportScanResult,
+  Settings,
+  ThemeId,
+  CloseBehavior,
+} from "../types";
 
 export const configApi = {
   getConfigsDir: () => invoke<string>("get_configs_dir"),
@@ -11,6 +20,10 @@ export const configApi = {
   remove: (name: string) => invoke<void>("delete_config_file", { name }),
   rename: (oldName: string, newName: string) =>
     invoke<void>("rename_config_file", { oldName, newName }),
+  scanImport: (path: string) =>
+    invoke<ImportScanResult>("scan_import_source", { source: { path } }),
+  applyImport: (items: ImportPlanItem[]) =>
+    invoke<ImportOutcome>("apply_config_import", { items }),
 };
 
 export const settingsApi = {

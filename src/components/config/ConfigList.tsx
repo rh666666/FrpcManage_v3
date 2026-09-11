@@ -8,6 +8,7 @@ interface ConfigListProps {
   onRename: (name: string) => void;
   onDelete: (name: string) => void;
   onCreate: () => void;
+  onImport: () => void;
   loading: boolean;
 }
 
@@ -18,11 +19,17 @@ export default function ConfigList({
   onRename,
   onDelete,
   onCreate,
+  onImport,
   loading,
 }: ConfigListProps) {
   const toolbar = (
     <div className="config-list-toolbar">
-      <Button variant="primary" onClick={onCreate}>新建配置</Button>
+      <Button variant="primary" onClick={onCreate}>
+        新建配置
+      </Button>
+      <Button onClick={onImport} title="从文件或目录批量导入">
+        <Icon name="import" size={12} /> 导入
+      </Button>
     </div>
   );
 

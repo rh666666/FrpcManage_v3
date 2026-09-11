@@ -1,9 +1,10 @@
 import { useEffect, useState } from "preact/hooks";
-import type { ConfigFileMeta } from "../../types";
+import type { ConfigFileMeta, ImportOutcome } from "../../types";
 import { ConfirmDialog, Icon, PromptDialog } from "@components/ui";
 import { configApi } from "../../lib/tauri";
 import ConfigList from "./ConfigList";
 import ConfigEditor from "./ConfigEditor";
+import ConfigImportDialog from "./ConfigImportDialog";
 
 interface PromptState {
   mode: "create" | "rename";
@@ -19,6 +20,7 @@ export default function ConfigView() {
   const [prompt, setPrompt] = useState<PromptState | null>(null);
   const [renameTarget, setRenameTarget] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   const refresh = async () => {
     try {
@@ -80,6 +82,17 @@ export default function ConfigView() {
     setPrompt({ mode: "rename", initial: name });
   };
 
+  /** 导入完成：刷新列表、选中首个新配置并汇报结果。 */
+  const handleImported = async (outcome: ImportOutcome) => {
+    setImportOpen(false);
+    await refresh();
+    if (outcome.imported.length > 0) setSelectedName(outcome.imported[0]);
+    const parts = [`已导入 ${outcome.imported.length} 个配置`];
+    if (outcome.skipped.length > 0) parts.push(`跳过同名 ${outcome.skipped.length} 个`);
+    if (outcome.failed.length > 0) parts.push(`失败 ${outcome.failed.length} 个（${outcome.failed[0].reason}）`);
+    flash(parts.join(" · "));
+  };
+
   const handleDelete = async () => {
     if (!deleteTarget) return;
     const name = deleteTarget;
@@ -116,6 +129,7 @@ export default function ConfigView() {
           onRename={startRename}
           onDelete={setDeleteTarget}
           onCreate={handleCreate}
+          onImport={() => setImportOpen(true)}
           loading={loading}
         />
         {selected ? (
@@ -145,6 +159,13 @@ export default function ConfigView() {
           confirmText="删除"
           onConfirm={handleDelete}
           onCancel={() => setDeleteTarget(null)}
+        />
+      )}
+      {importOpen && (
+        <ConfigImportDialog
+          configsDir={dir}
+          onImported={handleImported}
+          onCancel={() => setImportOpen(false)}
         />
       )}
     </div>

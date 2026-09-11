@@ -75,7 +75,7 @@ export default function SideBar({
         ))}
       </div>
       <div className="sidebar-footer">
-        <div className="sidebar-version">v3.0.1</div>
+        <div className="sidebar-version">v3.0.2-dev.1</div>
         <button
           type="button"
           className="sidebar-settings"

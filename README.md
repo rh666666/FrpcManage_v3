@@ -2,13 +2,14 @@
 
 Windows 桌面应用：在本地管理多份 [frpc](https://github.com/fatedier/frp) 配置，并控制多个客户端进程的启动、停止与日志。
 
-当前版本 `3.0.1`。需自行准备 frpc 可执行文件（配置格式按 frp 0.52+ 的 TOML：`serverAddr`、`[[proxies]]`、`[[visitors]]`）。
+当前版本 `3.0.2-dev.1`。需自行准备 frpc 可执行文件（配置格式按 frp 0.52+ 的 TOML：`serverAddr`、`[[proxies]]`、`[[visitors]]`）。
 
 ## 能做什么
 
 **配置管理**
 
 - 新建、重命名、删除 `.toml` 配置
+- 批量导入：选择单个/多个配置文件，或选择目录递归扫描（DFS）其下全部 `.toml`；确认前可预览清单，同名文件自动跳过、不覆盖已有配置
 - 可视化编辑服务端公共字段、代理（tcp / udp / http / https / tcpmux / stcp / sudp / xtcp）与访问者（stcp / sudp / xtcp）
 - 高级项可折叠；代理与访问者采用列表 + 下方 inspector
 - 「可视化编辑」与「TOML 源码」两种模式随时切换，源码模式保存前会校验格式

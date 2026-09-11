@@ -1,8 +1,12 @@
 use serde::Serialize;
+use std::collections::HashSet;
 use std::fs;
 use std::io;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use tauri::{AppHandle, Manager};
+
+/// 配置文件扩展名。导入与列表共用，比较时不区分大小写。
+pub(crate) const CONFIG_EXT: &str = "toml";
 
 const DEFAULT_CONFIG_TEMPLATE: &str = r#"serverAddr = "127.0.0.1"
 serverPort = 7000
@@ -41,6 +45,31 @@ fn resolve_path(app: &AppHandle, name: &str) -> Result<PathBuf, String> {
     Ok(configs_dir(app)?.join(format!("{name}.toml")))
 }
 
+/// 文件名扩展名是否为配置文件扩展名（不区分大小写）。
+pub(crate) fn is_config_file(path: &Path) -> bool {
+    path.extension()
+        .and_then(|e| e.to_str())
+        .map(|e| e.eq_ignore_ascii_case(CONFIG_EXT))
+        .unwrap_or(false)
+}
+
+/// 目录内已存在的配置名（不含扩展名），供导入去重。名称按原样返回，不折叠大小写。
+pub(crate) fn existing_names(app: &AppHandle) -> Result<HashSet<String>, String> {
+    let dir = configs_dir(app)?;
+    let mut out = HashSet::new();
+    for entry in fs::read_dir(&dir).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let path = entry.path();
+        if !is_config_file(&path) {
+            continue;
+        }
+        if let Some(stem) = path.file_stem().and_then(|s| s.to_str()) {
+            out.insert(stem.to_string());
+        }
+    }
+    Ok(out)
+}
+
 /// 配置 toml 的绝对路径。`name` 为不含扩展名的文件名。
 pub(crate) fn config_file_path(app: &AppHandle, name: &str) -> Result<PathBuf, String> {
     resolve_path(app, name)
@@ -72,7 +101,7 @@ pub fn list_config_files(app: AppHandle) -> Result<Vec<ConfigMeta>, String> {
     for entry in fs::read_dir(&dir).map_err(|e| e.to_string())? {
         let entry = entry.map_err(|e| e.to_string())?;
         let path = entry.path();
-        if path.extension().and_then(|e| e.to_str()) != Some("toml") {
+        if !is_config_file(&path) {
             continue;
         }
         let name = path
